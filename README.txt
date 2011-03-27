@@ -1,0 +1,19 @@
+== Press Four ==
+
+=== Introduction ===
+
+'Press Four' is a small Arduino-powered game in which the object is to light four lights using four buttons. 
+
+
+=== Components required ===
+
+* An Arduino
+* LEDs x 4
+* Push-to-connect buttons x 4
+* 10K Ohm resistors x 4
+* 560 Ohm resistors x 18
+* A two-digit 7-segment display
+* Shift registers x 2
+* Connecting wires
+
+
