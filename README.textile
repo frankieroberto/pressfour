@@ -1,11 +1,10 @@
-== Press Four ==
+h1. Press Four
 
-=== Introduction ===
+h2. Introduction
 
 'Press Four' is a small Arduino-powered game in which the object is to light four lights using four buttons. 
 
-
-=== Components required ===
+h2. Components required
 
 * An Arduino
 * LEDs x 4
