@@ -8,35 +8,13 @@ const int button1Pin = 5;     // the number of the pushbutton pin
 const int button2Pin = 6;     // the number of the pushbutton pin
 const int button3Pin = 7;     // the number of the pushbutton pin
 const int button4Pin = 8;     // the number of the pushbutton pin
-const int led1Pin =  10;      // the number of the LED pin
-const int led2Pin =  11;      // the number of the LED pin
-const int led3Pin =  12;      // the number of the LED pin
-const int led4Pin =  13;      // the number of the LED pin
+// LED pins: (TODO: should this be a const?)
+int ledPins[] = {
+  10,11,12,13};
+const int data = 2; // Data pin for Shift Register
+const int clock = 3; // Clock pin for Shift Register
+const int latch = 4;  // Latch pin for Shift Register 
 
-// variables will change:
-int button1State = 0;         // variable for reading the pushbutton status
-int button2State = 0;         // variable for reading the pushbutton status
-int button3State = 0;         // variable for reading the pushbutton status
-int button4State = 0;         // variable for reading the pushbutton status
-
-int lastButton1State = 0;         // variable for reading the pushbutton status
-int lastButton2State = 0;         // variable for reading the pushbutton status
-int lastButton3State = 0;         // variable for reading the pushbutton status
-int lastButton4State = 0;         // variable for reading the pushbutton status
-
-int level = 1;
-
-int led1State = 0;         // variable for the LED
-int led2State = 0;         // variable for the LED
-int led3State = 0;         // variable for the LED
-int led4State = 0;         // variable for the LED
-
-int data = 2; 
-int clock = 3;
-int latch = 4;
-
-//Used for single LED manipulation
-int ledState = 0;
 const int ON = HIGH;
 const int OFF = LOW;
                         
@@ -61,6 +39,36 @@ const int digit7 = segmentA|segmentB|segmentC;
 const int digit8 = segmentA|segmentB|segmentC|segmentD|segmentE|segmentF|segmentG;
 const int digit9 = segmentA|segmentB|segmentC|segmentF|segmentG;
 
+  
+
+// variables will change:
+
+int length = 3;   // Initial length of the sequence
+int leds = 4;   // The number of LEDs (not sure what this is used for)
+
+
+int button1State = 0;         // variable for reading the pushbutton status
+int button2State = 0;         // variable for reading the pushbutton status
+int button3State = 0;         // variable for reading the pushbutton status
+int button4State = 0;         // variable for reading the pushbutton status
+
+int lastButton1State = 0;         // variable for reading the pushbutton status
+int lastButton2State = 0;         // variable for reading the pushbutton status
+int lastButton3State = 0;         // variable for reading the pushbutton status
+int lastButton4State = 0;         // variable for reading the pushbutton status
+
+int level = 1;
+
+int led1State = 0;         // variable for the LED
+int led2State = 0;         // variable for the LED
+int led3State = 0;         // variable for the LED
+int led4State = 0;         // variable for the LED
+
+
+
+//Used for single LED manipulation
+int ledState = 0;
+
 
 
 void setup() {
@@ -75,96 +83,73 @@ void setup() {
   pinMode(button3Pin, INPUT);     
   pinMode(button4Pin, INPUT);     
   
+  // initialise the pins connected to the Shift Register
   pinMode(data, OUTPUT);
   pinMode(clock, OUTPUT);  
   pinMode(latch, OUTPUT);  
-  
+
+  // Not sure what this does:  
+  randomSeed(analogRead(0));
+
+  // Light up '0' on the display
+  lightNumber(0);
   
 }
 
 
 void loop(){
-  
-  checkWin();
-  lightNumber(level);
-  
-  // read the state of the pushbutton value:
-  button1State = digitalRead(button1Pin);
-  button2State = digitalRead(button2Pin);
-  button3State = digitalRead(button3Pin);
-  button4State = digitalRead(button4Pin);  
+  boolean pressed = false;
+  int counter = 0;
+  int key[length];
+  int answer[length];
 
-
-  if (button1State != lastButton1State) {
-    
-    // check if the pushbutton is pressed.
-    // if it is, the buttonState is HIGH:
-    if (button1State == HIGH) {     
-      // turn LED on:    
-      led1State = 1 - led1State;
-      //led1State = 1; 
-    } 
-    else {
-
+  // pattern
+  for (int i=0; i<length; i++) {
+    int rand = random(leds);
+    key[i] = rand;
+    digitalWrite(ledPins[rand], HIGH);
+    delay(400);
+    digitalWrite(ledPins[rand], LOW);
+    delay(200);
+  }
+  while (counter<length) {
+    delay(10);
+    if (press(button1)) {
+      answer[counter] = 0;
+      counter++;
+    }
+    if (press(button2)) {
+      answer[counter] = 1;
+      counter++;
+    }
+    if (press(button3)) {
+      answer[counter] = 2;
+      counter++;
+    }
+    if (press(button4)) {
+      answer[counter] = 3;
+      counter++;
     }
   }
 
-  if (button2State != lastButton2State) {
-    
-    // check if the pushbutton is pressed.
-    // if it is, the buttonState is HIGH:
-    if (button2State == HIGH) {     
-      // turn LED on:    
-      led2State = 1 - led2State;
-      //led2State = 1; 
-    } 
-    else {
-
-      // turn LED off:
-
+  // check answer
+  boolean correct = true; 
+  for (int i=0; i<length; i++) {
+    if (key[i] != answer[i]) {
+      correct = false;
     }
-  }  
+  }
+  if (correct) {
+    win();
+    length++;
+    lightNumber(length-3);
+  }
+  else {
+    lose();
+    length = 3;
+   }
+  delay(1000);
 
-  if (button3State != lastButton3State) {
-    
-    // check if the pushbutton is pressed.
-    // if it is, the buttonState is HIGH:
-    if (button3State == HIGH) {     
-      // turn LED on:    
-      led3State = 1 - led3State;
-      //led3State = 1; 
-    } 
-    else {
-
-      //  led3State = 0;
-      // turn LED off:
-
-    }
-  }  
-
-  if (button4State != lastButton4State) {
-    
-    // check if the pushbutton is pressed.
-    // if it is, the buttonState is HIGH:
-    if (button4State == HIGH) {     
-      // turn LED on:    
-      led4State = 1 - led4State;
-     /// led4State = 1; 
-    } 
-    else {
-
-      // turn LED off:
-
-    }
-  } 
-
-  displayLights();
-
-  
-  lastButton1State = button1State;
-  lastButton2State = button2State;
-  lastButton3State = button3State;
-  lastButton4State = button4State; 
 }
 
 
@@ -211,12 +196,12 @@ void checkWin() {
   
 }  
 
-
+/*
+* lightNumber() - sets the 7-segment-display to light up a given
+* two-digit number.
+*/
 void lightNumber(int number) {
- 
-  updateLEDs(getDigit(number / 10), getDigit(number % 10));
-  
-  
+  updateLEDs(getDigit(number / 10), getDigit(number % 10));   
 }  
 
 
@@ -257,6 +242,48 @@ int getDigit(int number) {
 
   }  
 } 
+
+boolean press(int button) {
+  if (digitalRead(button) == HIGH) {
+    return false;
+  } else { // button pressed - wait till released
+    while (digitalRead(button) != HIGH) {
+      true;
+    }
+    return true;
+  }
+}
+
+
+/*
+ * lose() - Displays WIN sequence
+ */
+void win() {
+  for (int i=0; i<3; i++) {
+    for (int ledPin=0; ledPin<leds; ledPin++) {
+      digitalWrite(ledPins[ledPin], HIGH);
+    }
+    delay(200);
+    for (int ledPin=0; ledPin<leds; ledPin++) {
+      digitalWrite(ledPins[ledPin], LOW);
+    }
+    delay(200);
+  }
+}
+
+
+/*
+ * lose() - Displays LOSE sequence
+ */
+void lose() {
+  for (int ledPin=0; ledPin<leds; ledPin++) {
+    digitalWrite(ledPins[ledPin], HIGH);
+  }
+  delay(1000);
+  for (int ledPin=0; ledPin<leds; ledPin++) {
+    digitalWrite(ledPins[ledPin], LOW);
+  }
+}
 
 
 /*
