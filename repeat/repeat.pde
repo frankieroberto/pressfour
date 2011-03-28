@@ -148,7 +148,7 @@ void loop() {
   if (correct) {
     win();
     length++;
-    //lightNumber(length-3);
+    lightNumber(length-3);
   }
   else {
     lose();
